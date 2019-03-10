@@ -1,0 +1,57 @@
+<html>
+
+<head>
+	<title>Nim</title>
+	<meta charset="UTF-8" />
+	<style>
+		h1 {
+			text-align: center;
+			color:green;
+		}
+		.stone-piles {
+			height: 300px;
+			background-color: #ffffff;
+			position:relative;
+		}
+		.gray-small-stone {
+			width: 20px;
+		  height: 10px;
+			background-color: #cccccc;
+			border-radius: 50%;
+		}
+	</style>
+	<script>
+		function stoneclicked(event) {
+			console.log(event)
+			event.target.style.display = "none";
+		}
+		function randomPosition(maxNum) {
+			return Math.floor(Math.random() * maxNum) + 'px'
+		}
+
+		document.addEventListener('DOMContentLoaded', function(event) {
+			console.log('Content loaded ', event)
+
+		})
+	</script>	
+</head>
+
+<body>
+	<h1> Nim </h1>
+	<div class="stone-piles">
+		<div class="gray-small-stone"> </div>
+		<div class="gray-small-stone" onclick="stoneclicked(event)"> </div>
+		<div class ="gray-small-stone"> </div>
+	</div>
+	
+	<ul> Instructions: 
+		<li> Take turns removing stones from a pile </li>
+		<li> During your turn, you can take any number of stones from one pile </li>
+		<li> You must take at least one stone </li>
+		<li> Whoever takes the last stone loses </li>
+	</ul>
+
+	<script src="src/index.js"></script>
+</body>
+
+</html>
