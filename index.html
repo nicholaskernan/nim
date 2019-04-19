@@ -7,30 +7,73 @@
         text-align: center;
         color: green;
       }
+
       .stone-piles {
         height: 300px;
         background-color: #ffffff;
         position: relative;
       }
+
+      .stone-piles > div {
+        background-color: #cccccc;
+      }
+
       .gray-small-stone {
         width: 20px;
         height: 10px;
-        background-color: #cccccc;
         border-radius: 50%;
+      }
+
+      .gray-small-stone.to-be-deleted {
+        background-color: #ff0000;
       }
     </style>
     <script>
-      function stoneclicked(event) {
+      let piles = [];
+      function stoneClicked(event) {
         console.log(event);
         // event.target.style.display = "none";
-        event.target.style.backgroundColor = "#ff0000";
+        // event.target.style.backgroundColor = "#ff0000";
+        const el = event.target;
+        const classNames = el.className;
+        if (classNames.includes("to-be-deleted")) {
+          el.classList.remove("to-be-deleted");
+        } else {
+          el.classList.add("to-be-deleted");
+        }
       }
+
+      function doneClicked(event) {
+        const stones = querySelectorAll(".to-be-deleted");
+        // TO DO
+      }
+
       function randomPosition(maxNum) {
         return Math.floor(Math.random() * maxNum) + "px";
       }
 
+      function randInt(min, max) {
+        return Math.round(Math.random() * (max - min)) + min;
+      }
+
+      function createStonePiles() {
+        const minPiles = 3;
+        const maxPiles = 5;
+        const minStones = 1;
+        const maxStones = 5;
+
+        for (let i = 0; i < randInt(minPiles, maxPiles); i++) {
+          piles.push(randInt(minStones, maxStones));
+        }
+
+        return piles;
+      }
+
+      function drawStones() {}
+
       document.addEventListener("DOMContentLoaded", function(event) {
         console.log("Content loaded ", event);
+        console.log(createStonePiles());
         const stoneNodes = document.querySelectorAll(".gray-small-stone");
         /*
         stoneNodes.forEach(stoneNode => {
@@ -39,20 +82,24 @@
 				*/
         for (let i = 0; i < stoneNodes.length; i++) {
           const stoneNode = stoneNodes[i];
-          stoneNode.addEventListener("click", stoneclicked);
+          stoneNode.addEventListener("click", stoneClicked);
         }
+
+        document.querySelector("done").addEventListener("click", doneClicked);
       });
     </script>
   </head>
 
   <body>
     <h1>Nim</h1>
-    <div class="stone-piles">
-      <div class="gray-small-stone"></div>
-      <div class="gray-small-stone"></div>
-      <div class="gray-small-stone"></div>
+    <div class="stones">
+      <div class="stone-piles">
+        <div class="gray-small-stone"></div>
+        <div class="gray-small-stone"></div>
+        <div class="gray-small-stone"></div>
+      </div>
     </div>
-
+    <button class="done">Done With My Turn</button>
     <ul>
       Instructions:
       <li>Take turns removing stones from a pile</li>
