@@ -8,10 +8,17 @@
         color: green;
       }
 
+      .stones {
+        display: flex;
+      }
+
       .stone-piles {
-        height: 300px;
+        height: 80px;
+        width: 50px;
+        border: 1px dashed #131212;
         background-color: #ffffff;
         position: relative;
+        margin-right: 20px;
       }
 
       .stone-piles > div {
@@ -65,15 +72,33 @@
         for (let i = 0; i < randInt(minPiles, maxPiles); i++) {
           piles.push(randInt(minStones, maxStones));
         }
-
+        console.log(`createStonePiles: ${piles}`);
         return piles;
       }
 
-      function drawStones() {}
+      function drawStonePiles() {
+        const stonesEl = document.querySelector(".stones");
+        piles.forEach((pile, index) => {
+          console.log(pile, index);
+          const pilesEl = document.createElement("div");
+          pilesEl.classList.add("stone-piles");
+          pilesEl.classList.add(`piles-${index}`);
+          stonesEl.appendChild(pilesEl);
+          drawStones(pilesEl, pile);
+        });
+      }
+      function drawStones(pileEl, pile) {
+        for (let i = 0; i < pile; i++) {
+          const stoneEl = document.createElement("div");
+          stoneEl.classList.add("gray-small-stone");
+          pileEl.appendChild(stoneEl);
+        }
+      }
 
       document.addEventListener("DOMContentLoaded", function(event) {
         console.log("Content loaded ", event);
-        console.log(createStonePiles());
+        createStonePiles();
+        drawStonePiles();
         const stoneNodes = document.querySelectorAll(".gray-small-stone");
         /*
         stoneNodes.forEach(stoneNode => {
@@ -85,20 +110,14 @@
           stoneNode.addEventListener("click", stoneClicked);
         }
 
-        document.querySelector("done").addEventListener("click", doneClicked);
+        document.querySelector(".done").addEventListener("click", doneClicked);
       });
     </script>
   </head>
 
   <body>
     <h1>Nim</h1>
-    <div class="stones">
-      <div class="stone-piles">
-        <div class="gray-small-stone"></div>
-        <div class="gray-small-stone"></div>
-        <div class="gray-small-stone"></div>
-      </div>
-    </div>
+    <div class="stones"></div>
     <button class="done">Done With My Turn</button>
     <ul>
       Instructions:
