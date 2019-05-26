@@ -37,28 +37,46 @@
     </style>
     <script>
       let piles = [];
+
+      function getPileName(classList) {
+        let className
+        let nextReturned = classList.next()
+        while(!nextReturned.done) {
+          className = nextReturned.value
+          if (className === 'stone-piles') {
+            nextReturned = classList.next();
+          } else {
+            break
+          }
+        }
+        return className
+      }
+
       function stoneClicked(event) {
         console.log(event);
         // event.target.style.display = "none";
         // event.target.style.backgroundColor = "#ff0000";
-        let className 
+        const el = event.target
+
+        let existingPileName
         if (document.querySelector('.to-be-deleted')) {
           let existingClassList = document.querySelector('.to-be-deleted').parentNode.classList.values()
-          let nextReturned = existingClassList.next()
-          while(nextReturned) {
-            className = nextReturned.value
-            if (className === 'stone-piles' && !nextReturned.done) {
-              nextReturned = existingClassList.next();
-            }
-          }
+          existingPileName = getPileName(existingClassList)
         }
 
-        const el = event.target;
+;
         const classNames = el.className;
-        if (classNames.includes("to-be-deleted")) {
-          el.classList.remove("to-be-deleted");
+        let currentPileList = el.parentNode.classList.values()
+        let currentPileName = getPileName(currentPileList)
+
+        if (existingPileName && (existingPileName !== currentPileName)) {
+          alert('You must select from the same pile')
         } else {
-          el.classList.add("to-be-deleted");
+          if (classNames.includes("to-be-deleted")) {
+            el.classList.remove("to-be-deleted");
+          } else {
+            el.classList.add("to-be-deleted");
+          }
         }
       }
 
