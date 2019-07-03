@@ -32,10 +32,21 @@
       }
 
       .gray-small-stone.to-be-deleted {
-        background-color: #ff0000;
+        background-color: #0000ff;
+      }
+
+      .gray-small-stone.computer-selected{ 
+        background-color: #ff0000
+      }
+
+      .computer-turn{
+        display: none;
+        color: #ff0000;
       }
     </style>
     <script>
+        //To do: finish nim method     when only one pile left, prevent user from clicking on last stone
+
       let piles = [];
 
       function getPileName(classList) {
@@ -80,9 +91,174 @@
         }
       }
 
+      function deleteAndRedraw() {
+        
+        deleteStones();
+        drawStonePiles();
+
+       
+        var nextTurn = "computer";
+        if (document.querySelector(".done").style.display === "none") {
+          nextTurn = "human";
+          document.querySelector(".done").style.display = "block";
+          document.querySelector(".computer-turn").style.display = "none";
+         
+          addStoneClickListeners();
+        } else {
+          
+          document.querySelector(".done").style.display = "none";
+          document.querySelector(".computer-turn").style.display = "block";
+        }
+        
+        if(nextTurn == "computer") {
+          isEndOfGame(piles);
+        }
+        
+      }
+
       function doneClicked(event) {
-        const stones = querySelectorAll(".to-be-deleted");
+        const stones = document.querySelectorAll(".to-be-deleted");
+        let existingPileName
+        if (document.querySelector('.to-be-deleted')) {
+          let existingClassList = document.querySelector('.to-be-deleted').parentNode.classList.values();
+          existingPileName = getPileName(existingClassList);
+          pileIndex = parseInt(existingPileName.split('-')[1]);
+          stonesRemoved = stones.length;
+          piles[pileIndex] = piles[pileIndex] - stonesRemoved;
+          deleteAndRedraw();
+          const [idx, numRemoved] = nim(piles);
+        
+          piles[idx] = piles[idx] - numRemoved;
+
+          for(let i =0; i < numRemoved; i++) {
+            setTimeout(function() {
+            addClass(idx, i);
+            }, (750 * i))
+   
+          }
+         
+          setTimeout(function() {
+            deleteAndRedraw();
+           }, 750 * numRemoved)
+        
+        } else {
+          alert("You must select at least one stone")
+        }
+
         // TO DO
+      }
+
+      function addClass(idx, num) {
+        let string = '.stone-piles.piles-' + idx;
+        let computerPicked = document.querySelector(string)  
+        computerPicked.childNodes[num].classList.add("computer-selected");
+      }
+
+      function nim(piles) {
+        const index = piles.findIndex(element => element > 0);
+        var numPiles = 0;
+        for(let i=0; i < piles.length; i++) {
+          if(piles[i] != 0) {
+            numPiles++;
+          }
+        }
+        console.log(numPiles);
+        copy = piles.slice();
+        
+
+        if(numPiles == 1) {
+          return[index, piles[index] - 1];
+        } else if(numPiles == 2) {
+          copy[index] = 0;
+          const secondIndex = copy.findIndex(element => element > 0);
+
+          if(piles[index] == 1) {
+            return[secondIndex, piles[secondIndex]];
+          } if(piles[secondIndex] == 1) {
+            return[index, piles[index]];
+          }
+
+          const diff = piles[index] - piles[secondIndex];
+          if(diff > 0) {
+            return[index, diff];
+          } else if(diff == 0) {
+            return[index, 1];
+          } else {
+            return[secondIndex, (diff * -1)];
+          }
+
+        } else {
+           numOnes = 0;
+           for(let i = index; i < piles.length; i++) {
+              if(piles[i] == 1) {
+                numOnes++;
+              }
+           }
+
+           //The computer should try to create situations where there are an odd number of piles each with one stone, and avoid the same with an even number 
+           indexOver1 = piles.findIndex(element => element > 1);
+
+           const reducer = (accumulator, currentValue) => accumulator + currentValue;
+           stonesLeft = piles.reduce(reducer);
+
+           if(stonesLeft - piles[indexOver1] == numPiles - 1) {
+             if(numPiles % 2 == 0) {
+               return[indexOver1, piles[indexOver1]];
+             } else {
+               return[indexOver1, piles[indexOver1] - 1];
+             }
+           }
+
+            nimsum = calcNimSum(copy)
+            if(nimsum == 0) {
+              return [index, 1]
+            } else {
+              for(let i = 0; i < piles.length; i++) {
+                for(let x = 1; x <= piles[i]; x++) {
+                  copy = piles.slice();
+                  copy[i] = copy[i] - x;
+                  if(calcNimSum(copy) == 0) {
+                    return[i, x];
+                  }
+                }
+              }
+            }
+      }
+    }
+
+      function calcNimSum(copy) {
+       
+        var pairing = 4;
+        nimsum = 0;
+        while(pairing >= 1) {
+          count = 0;
+          for(let i = 0; i < copy.length; i++) {
+            if(copy[i] >= pairing) {
+              count++;
+              copy[i] = copy[i] - pairing;
+            }
+          }
+          if(count % 2 > 0) {
+            nimsum++;
+          }
+          pairing = pairing / 2;
+         
+      }
+      return nimsum;
+    }
+       
+        
+
+      function isEndOfGame(piles) {
+        const reducer = (accumulator, currentValue) => accumulator + currentValue;
+        stonesLeft = piles.reduce(reducer)
+        if(stonesLeft == 1) {
+          alert("You win!")
+        } 
+        if(stonesLeft == 0) {
+          alert("You lose!")
+        }
+
       }
 
       function randomPosition(maxNum) {
@@ -106,6 +282,13 @@
         return piles;
       }
 
+      function deleteStones(){
+        let wrapper = document.querySelector('.stones')
+        while(wrapper.firstChild) {
+          wrapper.removeChild(wrapper.firstChild)
+        }
+      }
+
       function drawStonePiles() {
         const stonesEl = document.querySelector(".stones");
         piles.forEach((pile, index) => {
@@ -125,20 +308,19 @@
         }
       }
 
-      document.addEventListener("DOMContentLoaded", function(event) {
-        console.log("Content loaded ", event);
-        createStonePiles();
-        drawStonePiles();
+      function addStoneClickListeners() {
         const stoneNodes = document.querySelectorAll(".gray-small-stone");
-        /*
-        stoneNodes.forEach(stoneNode => {
-          stoneNode.addEventListener("click", stoneclicked);
-        });
-				*/
         for (let i = 0; i < stoneNodes.length; i++) {
           const stoneNode = stoneNodes[i];
           stoneNode.addEventListener("click", stoneClicked);
         }
+      }
+
+      document.addEventListener("DOMContentLoaded", function(event) {
+        console.log("Content loaded ", event);
+        createStonePiles();
+        drawStonePiles();
+        addStoneClickListeners();
 
         document.querySelector(".done").addEventListener("click", doneClicked);
       });
@@ -148,7 +330,8 @@
   <body>
     <h1>Nim</h1>
     <div class="stones"></div>
-    <button class="done">Done With My Turn</button>
+    <button class="done">            Done With My Turn</button> 
+    <span class="computer-turn"> Now it's the computer's turn... </span>
     <ul>
       Instructions:
       <li>Take turns removing stones from a pile</li>
@@ -160,3 +343,5 @@
     <script src="src/index.js"></script>
   </body>
 </html>
+
+
